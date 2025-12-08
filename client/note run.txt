@@ -1,0 +1,8 @@
+1. chuột phải vào packege Json  => click => terminal hiện lên
+2. npm run dev hoặc vào packege Json  xem    
+"scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview"
+  },

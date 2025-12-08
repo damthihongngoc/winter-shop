@@ -1,0 +1,72 @@
+/* 🎨 Auth.css */
+
+.container-login {
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+.auth-container {
+    width: 30%;
+    /* Thay vì max-width cố định */
+    max-width: 400px;
+    /* Giữ giới hạn tối đa cho desktop */
+    margin: 60px auto;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 16px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    font-family: "Inter", sans-serif;
+    text-align: center;
+}
+
+.auth-container h2 {
+    margin-bottom: 24px;
+    color: #1d4ed8;
+}
+
+.auth-container form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.auth-container input {
+    padding: 10px;
+    border-radius: 8px;
+    border: 1px solid #cbd5e1;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.auth-container input:focus {
+    outline: none;
+    border-color: #2563eb;
+    box-shadow: 0 0 4px rgba(37, 99, 235, 0.3);
+}
+
+.auth-container button {
+    background: linear-gradient(135deg, #2563eb, #1d4ed8);
+    color: #fff;
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: 0.3s;
+}
+
+.auth-container button:hover {
+    background: linear-gradient(135deg, #1d4ed8, #1e3a8a);
+}
+
+.auth-container p {
+    margin-top: 12px;
+    font-size: 14px;
+}
+
+.auth-container a {
+    color: #2563eb;
+    text-decoration: none;
+}

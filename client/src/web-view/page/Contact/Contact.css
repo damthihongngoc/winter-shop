@@ -1,0 +1,125 @@
+.contact-container {
+    min-height: 100vh;
+    padding: 80px 10%;
+    background: linear-gradient(135deg, #ffffff, #f3f4f6);
+    color: #1e293b;
+    font-family: "Inter", sans-serif;
+    transition: all 0.3s ease-in-out;
+}
+
+.contact-title {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #1d4ed8;
+}
+
+.contact-title span {
+    color: #eab308;
+}
+
+.contact-intro {
+    text-align: center;
+    max-width: 700px;
+    margin: 15px auto 40px;
+    font-size: 1.05rem;
+    color: #334155;
+    line-height: 1.6;
+}
+
+.contact-content {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 50px;
+    align-items: flex-start;
+}
+
+.contact-form {
+    flex: 1;
+    min-width: 300px;
+    max-width: 450px;
+    background: #ffffff;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.contact-form input,
+.contact-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #cbd5e1;
+    border-radius: 10px;
+    outline: none;
+    font-size: 1rem;
+    transition: all 0.2s ease;
+}
+
+.contact-form input:focus,
+.contact-form textarea:focus {
+    border-color: #60a5fa;
+    box-shadow: 0 0 5px rgba(96, 165, 250, 0.5);
+}
+
+.contact-form textarea {
+    min-height: 120px;
+    resize: none;
+}
+
+.contact-form button {
+    background: linear-gradient(90deg, #2563eb, #1e40af);
+    color: #fff;
+    font-weight: 600;
+    padding: 12px;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.contact-form button:hover {
+    background: linear-gradient(90deg, #1d4ed8, #1e3a8a);
+    transform: translateY(-2px);
+}
+
+.contact-info {
+    flex: 1;
+    min-width: 250px;
+    max-width: 400px;
+    background: #f8fafc;
+    padding: 30px;
+    border-radius: 20px;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+    line-height: 1.8;
+}
+
+.contact-info h3 {
+    color: #2563eb;
+    margin-top: 10px;
+    font-size: 1.1rem;
+}
+
+.contact-info p {
+    color: #475569;
+    font-size: 0.95rem;
+    margin-bottom: 10px;
+}
+
+
+/* Mobile */
+
+@media (max-width: 768px) {
+    .contact-content {
+        flex-direction: column;
+        align-items: center;
+    }
+    .contact-form,
+    .contact-info {
+        width: 100%;
+        max-width: 90%;
+    }
+}

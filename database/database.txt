@@ -1,0 +1,138 @@
+
+
+-- 1. users
+CREATE TABLE users (
+  user_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(100) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  phone VARCHAR(15),
+  address VARCHAR(255),
+  role ENUM('user','admin') NOT NULL DEFAULT 'user',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 2. categories
+CREATE TABLE categories (
+  category_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(100) NOT NULL,
+  description TEXT,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 3. sizes
+CREATE TABLE sizes (
+  size_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 4. colors
+CREATE TABLE colors (
+  color_id INT AUTO_INCREMENT PRIMARY KEY,
+  name VARCHAR(50) NOT NULL,
+  hex_code VARCHAR(10)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 5. products
+CREATE TABLE products (
+  product_id INT AUTO_INCREMENT PRIMARY KEY,
+  category_id INT NOT NULL,
+  name VARCHAR(150) NOT NULL,
+  description TEXT,
+  price DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  thumbnail VARCHAR(255),
+  status ENUM('active','inactive') NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_products_category FOREIGN KEY (category_id) REFERENCES categories(category_id)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 6. product_details (phiên bản theo size + color)
+CREATE TABLE product_details (
+  detail_id INT AUTO_INCREMENT PRIMARY KEY,
+  product_id INT NOT NULL,
+  size_id INT NOT NULL,
+  color_id INT NOT NULL,
+  stock INT NOT NULL DEFAULT 0,
+  image VARCHAR(255),
+  price DECIMAL(10,2), -- nếu NULL thì sử dụng price từ products
+  CONSTRAINT fk_pd_product FOREIGN KEY (product_id) REFERENCES products(product_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_pd_size FOREIGN KEY (size_id) REFERENCES sizes(size_id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT fk_pd_color FOREIGN KEY (color_id) REFERENCES colors(color_id)
+    ON DELETE RESTRICT ON UPDATE CASCADE,
+  UNIQUE KEY ux_product_size_color (product_id, size_id, color_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 7. banners
+CREATE TABLE banners (
+  banner_id INT AUTO_INCREMENT PRIMARY KEY,
+  image VARCHAR(255) NOT NULL,
+  title VARCHAR(100),
+  `link` VARCHAR(255),
+  status ENUM('active','inactive') NOT NULL DEFAULT 'active',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 8. carts
+CREATE TABLE carts (
+  cart_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_carts_user FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 9. cart_items
+CREATE TABLE cart_items (
+  cart_item_id INT AUTO_INCREMENT PRIMARY KEY,
+  cart_id INT NOT NULL,
+  detail_id INT NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  CONSTRAINT fk_ci_cart FOREIGN KEY (cart_id) REFERENCES carts(cart_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_ci_detail FOREIGN KEY (detail_id) REFERENCES product_details(detail_id)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- 10. orders
+CREATE TABLE orders (
+  order_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NULL,
+  total_amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+  status ENUM('pending','paid','shipped','delivered','cancelled') NOT NULL DEFAULT 'pending',
+  payment_method VARCHAR(50),
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  CONSTRAINT fk_orders_user FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE SET NULL ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+
+-- 11. order_details
+CREATE TABLE order_details (
+  order_detail_id INT AUTO_INCREMENT PRIMARY KEY,
+  order_id INT NOT NULL,
+  detail_id INT NOT NULL,
+  quantity INT NOT NULL DEFAULT 1,
+  price DECIMAL(10,2) NOT NULL, -- giá tại thời điểm mua
+  CONSTRAINT fk_od_order FOREIGN KEY (order_id) REFERENCES orders(order_id)
+    ON DELETE CASCADE ON UPDATE CASCADE,
+  CONSTRAINT fk_od_detail FOREIGN KEY (detail_id) REFERENCES product_details(detail_id)
+    ON DELETE RESTRICT ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+banners
+-- 12. notifications
+CREATE TABLE notifications (
+  notification_id INT AUTO_INCREMENT PRIMARY KEY,
+  user_id INT NOT NULL,
+  title VARCHAR(150),
+  message TEXT,
+  status ENUM('unread','read') NOT NULL DEFAULT 'unread',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_notifications_user FOREIGN KEY (user_id) REFERENCES users(user_id)
+    ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+

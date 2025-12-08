@@ -1,0 +1,62 @@
+/* Backdrop */
+.notify-backdrop {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    animation: fadeIn 0.2s ease;
+    z-index: 9999;
+}
+
+/* Modal */
+.notify-modal {
+    padding: 16px 24px;
+    min-width: 260px;
+    border-radius: 8px;
+    color: white;
+    font-size: 16px;
+    position: relative;
+    animation: popIn 0.25s ease;
+}
+
+/* Close button */
+.notify-close {
+    position: absolute;
+    right: 10px;
+    top: 8px;
+    background: none;
+    border: none;
+    font-size: 20px;
+    cursor: pointer;
+    color: white;
+}
+
+/* --------- TYPES --------- */
+.notify-success {
+    background: #16a34a; /* xanh lá */
+}
+
+.notify-error {
+    background: #dc2626; /* đỏ */
+}
+
+.notify-warning {
+    background: #f59e0b; /* vàng */
+}
+
+.notify-neutral {
+    background: #6b7280; /* xám */
+}
+
+/* Animations */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+@keyframes popIn {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}

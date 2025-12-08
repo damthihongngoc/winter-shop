@@ -1,0 +1,46 @@
+/* Profile.scss */
+.profile-box {
+    background-color: #fff;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    border-radius: 12px;
+    padding: 30px;
+}
+
+.profile-title {
+    font-weight: 700;
+    margin-bottom: 20px;
+}
+
+.profile-subtitle {
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.profile-form {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    margin-bottom: 24px;
+}
+
+.profile-input {
+    .MuiOutlinedInput-root {
+        border-radius: 8px;
+    }
+}
+.profile-info-row {
+  display: flex;
+  padding: 10px 0;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.profile-info-row .label {
+  width: 160px;
+  font-weight: 600;
+  color: #555;
+}
+
+.profile-info-row .value {
+  flex: 1;
+  color: #333;
+}

@@ -1,0 +1,214 @@
+/* 🎩 Navbar tổng thể */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: white;
+    /* Đen mờ sang trọng */
+    color: black;
+    padding: 16px 40px;
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.6);
+    transition: background 0.3s ease-in-out;
+}
+
+
+/* 🎯 Dropdown */
+
+.dropdown {
+    position: relative;
+}
+
+.dropdown-link {
+    cursor: pointer;
+}
+
+
+/* Menu con */
+
+.dropdown-menu {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    background: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 8px;
+    display: none;
+    flex-direction: column;
+    min-width: 200px;
+    padding: 10px 0;
+    z-index: 999;
+}
+
+
+/* Khi hover hiện ra */
+
+.dropdown-menu.show {
+    display: flex;
+    animation: fadeIn 0.2s ease-in;
+}
+
+
+/* Mỗi item */
+
+.dropdown-menu a {
+    color: #333;
+    padding: 10px 20px;
+    text-decoration: none;
+    transition: background 0.2s ease;
+    font-size: 15px;
+}
+
+.dropdown-menu a:hover {
+    background-color: #e0f7fa;
+    color: #007b8a;
+}
+
+
+/* Giúp menu không bị mất khi hover */
+
+.dropdown:hover .dropdown-menu {
+    display: flex;
+}
+
+
+/* 👔 Logo */
+
+.navbar-logo {
+    font-size: 24px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    cursor: pointer;
+}
+
+.navbar-logo span {
+    color: #00e5ff;
+    /* xanh ngọc nhạt */
+    letter-spacing: 1px;
+}
+
+
+/* 🔗 Link menu */
+
+.navbar-links {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+    transition: all 0.3s ease;
+}
+
+.navbar-links a {
+    color: black;
+    text-decoration: none;
+    font-size: 16px;
+    font-weight: 500;
+    position: relative;
+    transition: color 0.3s ease;
+}
+
+
+/* Gạch dưới mượt khi hover */
+
+.navbar-links a::after {
+    content: "";
+    position: absolute;
+    width: 0%;
+    height: 2px;
+    bottom: -4px;
+    left: 0;
+    background-color: #00e5ff;
+    transition: width 0.3s;
+}
+
+.navbar-links a:hover {
+    color: #00e5ff;
+}
+
+.navbar-links a:hover::after {
+    width: 100%;
+}
+
+
+/* 🛒 Nút giỏ hàng nổi bật */
+
+.cart-link {
+    background-color: #00e5ff;
+    color: #0d0d0d !important;
+    padding: 8px 14px;
+    border-radius: 30px;
+    font-weight: 600;
+    box-shadow: 0 0 10px rgba(0, 229, 255, 0.4);
+    transition: all 0.3s ease;
+}
+
+.cart-link:hover {
+    background-color: #00b8d4;
+    box-shadow: 0 0 15px rgba(0, 229, 255, 0.6);
+    transform: translateY(-2px);
+}
+
+
+/* 🍔 Hamburger icon */
+
+.navbar-toggle {
+    display: none;
+    flex-direction: column;
+    cursor: pointer;
+    gap: 5px;
+}
+
+.bar {
+    height: 3px;
+    width: 26px;
+    background-color: white;
+    border-radius: 5px;
+    transition: 0.3s;
+}
+
+
+/* 📱 Responsive */
+
+@media (max-width: 768px) {
+    .navbar {
+        padding: 14px 24px;
+    }
+    .navbar-links {
+        position: absolute;
+        top: 68px;
+        left: 0;
+        right: 0;
+        background: rgba(13, 13, 13, 0.98);
+        flex-direction: column;
+        align-items: center;
+        gap: 24px;
+        padding: 20px 0;
+        display: none;
+        backdrop-filter: blur(8px);
+    }
+    .navbar-links.active {
+        display: flex;
+        animation: fadeIn 0.3s ease-in;
+    }
+    .navbar-toggle {
+        display: flex;
+    }
+}
+
+
+/* 💫 Animation mở menu */
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(-10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
