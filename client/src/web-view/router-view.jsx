@@ -8,7 +8,8 @@ import Contact from "./page/Contact/Contact";
 import RegisterPage from "./page/Register/Register.jsx";
 import About from "./page/About/About.jsx";
 import CartPage from "./page/cart/cart.jsx";
-import ProductDetailPage from "../admin-page/page/product-detail-page/page.jsx";
+
+import ProductDetailWebView from "./page/ProductDetail/page.jsx";
 
 // import tất cả component cần dùng
 
@@ -22,7 +23,7 @@ const RouterView = () => {
     { path: "/banner", element: <Banner /> },
     { path: "products", element: <ProductPage /> },
     { path: "/products/:id", element: <ProductPage /> },
-    { path: "/product-detail/:id", element: <ProductDetailPage /> },
+    { path: "/product-detail/:id", element: <ProductDetailWebView /> },
     { path: "/contact", element: <Contact /> },
     { path: "/cart", element: <CartPage /> },
 

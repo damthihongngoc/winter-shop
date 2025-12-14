@@ -73,7 +73,7 @@ function ProductList({ categoryID = null }) {
         <div className="product-grid">
           {listProduct?.map((item) => (
             <div
-              onClick={() => navigate(`/product/${item.detail_id}`)}
+              onClick={() => navigate(`/product-detail/${item.detail_id}`)}
               key={item.detail_id}
               className="product-card"
             >
