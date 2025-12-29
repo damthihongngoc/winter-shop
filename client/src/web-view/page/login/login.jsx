@@ -5,7 +5,6 @@ import "./Login.css";
 import { loginUser } from "../../../service/auth.service";
 
 export default function LoginPage() {
-  const navigate = useNavigate();
   const [form, setForm] = useState({ email: "", password: "" });
   const [error, setError] = useState("");
 
@@ -17,7 +16,7 @@ export default function LoginPage() {
       console.log(res);
       localStorage.setItem("token", res.data.token);
       localStorage.setItem("user", JSON.stringify(res.data.user));
-     window.location.href = "/"
+      window.location.href = "/";
     } catch (err) {
       setError(err.response?.data?.error || "Đăng nhập thất bại!");
     }

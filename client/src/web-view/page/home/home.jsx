@@ -65,7 +65,7 @@ function Home() {
         )}
       </Swiper>
 
-      <ProductList />
+      <ProductList maxResponseProduct={12} />
     </div>
   );
 }

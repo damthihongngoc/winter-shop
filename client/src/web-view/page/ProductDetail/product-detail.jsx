@@ -4,76 +4,84 @@ import GalleryModal from "../../../component/GalleryModal";
 import { enqueueSnackbar } from "notistack";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
+import { useCart } from "../../../hook/CartContext";
 
 export default function ProductDetail({ apiData }) {
-  const { productDetailMain, otherProductDetails, images } = apiData;
+  const { refreshCartQuantity } = useCart();
 
+  const { productDetailMain, otherProductDetails, images } = apiData;
+  const [quantity, setQuantity] = useState(1);
   const [selectedDetail, setSelectedDetail] = useState(productDetailMain);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
   const allDetails = [productDetailMain, ...otherProductDetails];
-console.log(productDetailMain)
+
   const colors = [
     ...new Map(
       allDetails.map((d) => [
-        d.color_id,
+        d?.color_id,
         {
-          id: d.color_id,
-          name: d.color_name,
-          thumbnail: d.color_thumbnail,
+          id: d?.color_id,
+          name: d?.color_name,
+          hex_code: d?.hex_code,
         },
       ])
     ).values(),
   ];
 
-  // Lấy sizes theo màu đã chọn
+  // Lấy sizes theo màu đã chọn 123
   const sizesByColor = allDetails.filter(
     (d) => d.color_id === selectedDetail.color_id
   );
 
-const promotions = [
-  {
-    icon: "🚚",
-    text: "Giao hàng nhanh toàn quốc",
-  },
-  {
-    icon: "🎁",
-    text: "Tặng túi / hộp khi mua online",
-  },
-  {
-    icon: "🔄",
-    text: "Đổi trả trong 7 ngày nếu sản phẩm lỗi",
-  },
-  {
-    icon: "🧵",
-    text: "Cam kết sản phẩm chính hãng 100%",
-  },
-  {
-    icon: "💬",
-    text: "Hỗ trợ tư vấn trực tuyến 24/7",
-  },
-]
-  const handleAddToCart = async (detail_id) => {
+  const handleIncrease = () => {
+    setQuantity((prev) => prev + 1);
+  };
+
+  const handleDecrease = () => {
+    setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
+  };
+
+  const promotions = [
+    {
+      icon: "🚚",
+      text: "Giao hàng nhanh toàn quốc",
+    },
+    {
+      icon: "🎁",
+      text: "Tặng túi / hộp khi mua online",
+    },
+    {
+      icon: "🔄",
+      text: "Đổi trả trong 7 ngày nếu sản phẩm lỗi",
+    },
+    {
+      icon: "🧵",
+      text: "Cam kết sản phẩm chính hãng 100%",
+    },
+    {
+      icon: "💬",
+      text: "Hỗ trợ tư vấn trực tuyến 24/7",
+    },
+  ];
+  const handleAddToCart = async () => {
     const token = localStorage.getItem("token");
-  
-   const parseToken = jwtDecode(token)
-    console.log(parseToken)
-    // 1. Chưa đăng nhập → báo lỗi + dừng
+
     if (!token) {
       enqueueSnackbar("Vui lòng đăng nhập để thêm vào giỏ!", {
         variant: "warning",
       });
       return;
     }
-
+    const parseToken = jwtDecode(token);
     try {
       const response = await axios.post(
         "http://localhost:3001/api/cart",
         {
           user_id: parseToken.user_id,
-          detail_id: productDetailMain.detail_id,
-          quantity: 1,
+          detail_id: selectedDetail.detail_id,
+          quantity: quantity,
         },
         {
           headers: {
@@ -81,15 +89,17 @@ const promotions = [
           },
         }
       );
-
-      enqueueSnackbar("Đã thêm vào giỏ!", { variant: "success" });
-      console.log("Cart:", response.data);
+      if (response.status === 200) {
+        refreshCartQuantity();
+        enqueueSnackbar(`Đã thêm ${quantity} sản phẩm vào giỏ!`, {
+          variant: "success",
+        });
+      }
     } catch (error) {
       enqueueSnackbar("Lỗi khi thêm vào giỏ", { variant: "error" });
       console.log(error);
     }
   };
-
 
   return (
     <>
@@ -125,7 +135,7 @@ const promotions = [
         <div className="product-info">
           <h1 className="product-title">{selectedDetail.product_name}</h1>
 
-          <div className="rating">★★★★★ 0 đánh giá</div>
+          {/* <div className="rating">★★★★★ 0 đánh giá</div> */}
 
           <div className="price-section">
             <span className="price">
@@ -134,21 +144,20 @@ const promotions = [
           </div>
 
           {/* Khuyến mãi */}
-        <div className="promotion-box">
-  <div className="promotion-title">
-    <span className="icon">⭐</span> ƯU ĐÃI KHI MUA ONLINE
-  </div>
+          <div className="promotion-box">
+            <div className="promotion-title">
+              <span className="icon">⭐</span> ƯU ĐÃI KHI MUA ONLINE
+            </div>
 
-  <div className="promotion-list">
-    {promotions.map((p, index) => (
-      <div key={index} className="promotion-item">
-        <span className="tag">{p.icon}</span>
-        <span className="text">{p.text}</span>
-      </div>
-    ))}
-  </div>
-</div>
-
+            <div className="promotion-list">
+              {promotions.map((p, index) => (
+                <div key={index} className="promotion-item">
+                  <span className="tag">{p.icon}</span>
+                  <span className="text">{p.text}</span>
+                </div>
+              ))}
+            </div>
+          </div>
 
           {/* Màu sắc */}
           <div className="variant-section">
@@ -162,6 +171,7 @@ const promotions = [
                   className={`color-btn ${
                     color.id === selectedDetail.color_id ? "active" : ""
                   }`}
+                  style={{ backgroundColor: `${color?.hex_code}` }}
                   onClick={() => {
                     const firstOfColor = allDetails.find(
                       (d) => d.color_id === color.id
@@ -203,22 +213,21 @@ const promotions = [
           {/* Số lượng & Nút mua */}
           <div className="action-section">
             <div className="quantity">
-              <button>-</button>
-              <span>1</span>
-              <button>+</button>
+              <button onClick={handleDecrease}>-</button>
+              <span>{quantity}</span>
+              <button onClick={handleIncrease}>+</button>
             </div>
 
-            <button className="add-to-cart" onClick={handleAddToCart}>THÊM VÀO GIỎ</button>
-            <button className="buy-now">MUA NGAY</button>
+            <button className="add-to-cart" onClick={handleAddToCart}>
+              THÊM VÀO GIỎ
+            </button>
+            {/* <button className="buy-now">MUA NGAY</button> */}
           </div>
-
           {/* Tồn kho */}
           <div className="stock-info">
-            Có <strong>23 sản phẩm</strong> còn sản phẩm này
+            Có <strong>{selectedDetail?.stock} sản phẩm</strong> còn sản phẩm
+            này trong kho.
           </div>
-
-       
-        
         </div>
       </div>
 

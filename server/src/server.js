@@ -14,14 +14,32 @@ import path from "path";
 import authRoutes from "./router/auth.routes.js";
 import userRoutes from "./router/user.routes.js";
 import cartRouters from "./router/cart.routes.js";
-
+import orderRouters from "./router/order.routes.js";
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 3001;
 
 // Middleware
-app.use(cors());
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  "http://localhost:5174",
+];
+
+app.use(
+  cors({
+    origin: function (origin, callback) {
+      if (!origin || allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error("Not allowed by CORS"));
+      }
+    },
+    credentials: true,
+  })
+);
+
 app.use(express.json());
 app.use(
   "/images",
@@ -38,6 +56,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/banners", bannerRouters);
 app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRouters);
+app.use("/api/orders", orderRouters);
 
 // Route test
 app.get("/", (req, res) => {
@@ -95,7 +114,8 @@ app.post("/api/banners", async (req, res) => {
   try {
     const { title, image_url, link } = req.body;
     const [result] = await pool.query(
-      "INSERT INTO banners (title, image_url, link) VALUES (?, ?, ?)", [title, image_url, link]
+      "INSERT INTO banners (title, image_url, link) VALUES (?, ?, ?)",
+      [title, image_url, link]
     );
     res.status(201).json({ id: result.insertId, title, image_url, link });
   } catch (error) {
@@ -108,7 +128,8 @@ app.put("/api/banners/:id", async (req, res) => {
   try {
     const { title, image_url, link } = req.body;
     const [result] = await pool.query(
-      "UPDATE banners SET title=?, image_url=?, link=? WHERE id=?", [title, image_url, link, req.params.id]
+      "UPDATE banners SET title=?, image_url=?, link=? WHERE id=?",
+      [title, image_url, link, req.params.id]
     );
 
     if (result.affectedRows === 0) {
@@ -136,57 +157,61 @@ app.delete("/api/banners/:id", async (req, res) => {
   }
 });
 const danhMucMonAn = {
-  systemCategories: [{
-    id: 10,
-    name: "Mì xào, cơm trộn",
-    slug: "mi-xao-com-tron",
-    description: "Mì xào, cơm trộn",
-    organizationId: 1,
-    image_url: "5fe89569-3c8d-499e-a55d-26be3e0dc1a3.webp",
-    userUpdate: 0,
-    createDate: "2025-05-04T12:13:04.000Z",
-    updateDate: "2025-05-04T12:13:04.000Z",
-    isDeleted: false,
-    parentId: 0,
-    index: 0,
-    order: 0,
-    createUser: 0,
-    image_url_map: "https://s3-api-stg.chothongminh.com/food/category-system/mi-xao-com-tron/5fe89569-3c8d-499e-a55d-26be3e0dc1a3.webp",
-  },
-  {
-    id: 19,
-    name: "Bánh Xèo",
-    slug: "banh-xeo",
-    description: "Bánh Xèo",
-    organizationId: 1,
-    image_url: "0f4099af-4ff8-43b2-a146-d4920193e5f9.webp",
-    userUpdate: 0,
-    createDate: "2025-05-04T12:12:44.000Z",
-    updateDate: "2025-05-04T12:12:44.000Z",
-    isDeleted: false,
-    parentId: 0,
-    index: 0,
-    order: 0,
-    createUser: 0,
-    image_url_map: "https://s3-api-stg.chothongminh.com/food/category-system/banh-xeo/0f4099af-4ff8-43b2-a146-d4920193e5f9.webp",
-  },
-  {
-    id: 21,
-    name: "Bánh Mì",
-    slug: "banh-mi",
-    description: "Bánh Mì",
-    organizationId: 1,
-    image_url: "58f7b47a-f85a-4026-855d-02059a4b3ff4.webp",
-    userUpdate: 0,
-    createDate: "2025-05-04T12:07:26.000Z",
-    updateDate: "2025-05-04T12:07:26.000Z",
-    isDeleted: false,
-    parentId: 0,
-    index: 0,
-    order: 0,
-    createUser: 0,
-    image_url_map: "https://s3-api-stg.chothongminh.com/food/category-system/banh-mi/58f7b47a-f85a-4026-855d-02059a4b3ff4.webp",
-  },
+  systemCategories: [
+    {
+      id: 10,
+      name: "Mì xào, cơm trộn",
+      slug: "mi-xao-com-tron",
+      description: "Mì xào, cơm trộn",
+      organizationId: 1,
+      image_url: "5fe89569-3c8d-499e-a55d-26be3e0dc1a3.webp",
+      userUpdate: 0,
+      createDate: "2025-05-04T12:13:04.000Z",
+      updateDate: "2025-05-04T12:13:04.000Z",
+      isDeleted: false,
+      parentId: 0,
+      index: 0,
+      order: 0,
+      createUser: 0,
+      image_url_map:
+        "https://s3-api-stg.chothongminh.com/food/category-system/mi-xao-com-tron/5fe89569-3c8d-499e-a55d-26be3e0dc1a3.webp",
+    },
+    {
+      id: 19,
+      name: "Bánh Xèo",
+      slug: "banh-xeo",
+      description: "Bánh Xèo",
+      organizationId: 1,
+      image_url: "0f4099af-4ff8-43b2-a146-d4920193e5f9.webp",
+      userUpdate: 0,
+      createDate: "2025-05-04T12:12:44.000Z",
+      updateDate: "2025-05-04T12:12:44.000Z",
+      isDeleted: false,
+      parentId: 0,
+      index: 0,
+      order: 0,
+      createUser: 0,
+      image_url_map:
+        "https://s3-api-stg.chothongminh.com/food/category-system/banh-xeo/0f4099af-4ff8-43b2-a146-d4920193e5f9.webp",
+    },
+    {
+      id: 21,
+      name: "Bánh Mì",
+      slug: "banh-mi",
+      description: "Bánh Mì",
+      organizationId: 1,
+      image_url: "58f7b47a-f85a-4026-855d-02059a4b3ff4.webp",
+      userUpdate: 0,
+      createDate: "2025-05-04T12:07:26.000Z",
+      updateDate: "2025-05-04T12:07:26.000Z",
+      isDeleted: false,
+      parentId: 0,
+      index: 0,
+      order: 0,
+      createUser: 0,
+      image_url_map:
+        "https://s3-api-stg.chothongminh.com/food/category-system/banh-mi/58f7b47a-f85a-4026-855d-02059a4b3ff4.webp",
+    },
   ],
   totalSystemCategories: 3,
 };

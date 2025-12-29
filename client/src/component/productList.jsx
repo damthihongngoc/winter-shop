@@ -5,7 +5,7 @@ import NotificationModal from "./NotificationModal";
 import { enqueueSnackbar } from "notistack";
 import { useNavigate } from "react-router-dom";
 
-function ProductList({ categoryID = null }) {
+function ProductList({ categoryID = null ,maxResponseProduct  = null }) {
   const [listProduct, setListProduct] = useState([]);
   const [openNotify, setOpenNotify] = useState({
     open: false,
@@ -13,21 +13,31 @@ function ProductList({ categoryID = null }) {
     message: "",
   });
   const navigate = useNavigate();
-  const fectchProduct = async (categoryID) => {
-    try {
-      const url = categoryID
-        ? `http://localhost:3001/api/product-details/category/${categoryID}`
-        : "http://localhost:3001/api/product-details";
+const fectchProduct = async (categoryID, maxResponseProduct = null) => {
+  try {
+    const url = categoryID
+      ? `http://localhost:3001/api/product-details/category/${categoryID}`
+      : "http://localhost:3001/api/products";
 
-      const response = await axios.get(url);
-      setListProduct(response.data);
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    const response = await axios.get(url);
+    const products = response.data;
+
+    // Nếu maxResponseProduct là số → giới hạn
+    // Nếu null → lấy toàn bộ
+    const finalProducts =
+      typeof maxResponseProduct === "number"
+        ? products.slice(0, maxResponseProduct)
+        : products;
+
+    setListProduct(finalProducts);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 
   useEffect(() => {
-    fectchProduct(categoryID);
+    fectchProduct(categoryID ,maxResponseProduct);
   }, [categoryID]);
 
   /* ---------------- ADD TO CART ---------------- */
@@ -73,32 +83,33 @@ function ProductList({ categoryID = null }) {
         <div className="product-grid">
           {listProduct?.map((item) => (
             <div
-              onClick={() => navigate(`/product-detail/${item.detail_id}`)}
+              onClick={() => navigate(`/product-detail/${item.product_id}`)}
               key={item.detail_id}
+              style={{cursor:'pointer'}}
               className="product-card"
             >
               <div className="product-image-wrapper">
                 <img
-                  src={item.image}
-                  alt={item.product_name}
+                  src={item.thumbnail}
+                  alt={item.thumbnail}
                   className="product-image"
                 />
               </div>
 
               <div className="product-info">
-                <h3 className="product-name">{item.product_name}</h3>
+                <h3 className="product-name">{item.name}</h3>
 
                 <div className="product-variant">
-                  <span className="size-badge">Size: {item.size_name}</span>
+                  {/* <span className="size-badge">Size: {item.size_name}</span> */}
 
-                  <span className="color-badge">
+                  {/* <span className="color-badge">
                     Màu:
                     <span
                       className="color-dot"
                       style={{ backgroundColor: item.hex_code }}
                     />
                     {item.color_name}
-                  </span>
+                  </span> */}
                 </div>
 
                 <p className="product-price">

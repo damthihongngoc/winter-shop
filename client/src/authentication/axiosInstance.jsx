@@ -1,10 +1,8 @@
 import axios from "axios";
-import Cookies from "js-cookie";
 
 // Tạo instance của axios
 const apiUrl = import.meta.env.VITE_URL_SERVER;
 
-console.log("apiUrl", apiUrl);
 const axiosInstance = axios.create({
   baseURL: apiUrl, // Thay đổi URL này thành URL của API của bạn
 });
@@ -12,7 +10,7 @@ const axiosInstance = axios.create({
 // Thêm interceptor để tự động thêm token vào headers
 axiosInstance.interceptors.request.use(
   (config) => {
-    const token = Cookies.get("accessToken");
+    const token = localStorage.getItem("token");
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
     }
@@ -30,6 +28,28 @@ axiosInstance.interceptors.request.use(
     return config;
   },
   (error) => {
+    return Promise.reject(error);
+  }
+);
+axiosInstance.interceptors.response.use(
+  (response) => {
+    return response;
+  },
+  (error) => {
+    if (error.response && error.response.status === 401) {
+      // Token hết hạn hoặc không hợp lệ
+      console.log("Token hết hạn, đăng xuất người dùng");
+
+      // Xóa token
+      localStorage.removeItem("token");
+
+      // Nếu bạn lưu thêm user info
+      localStorage.removeItem("user");
+
+      // Redirect về trang login
+      window.location.href = "/login";
+    }
+
     return Promise.reject(error);
   }
 );

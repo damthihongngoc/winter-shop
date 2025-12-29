@@ -7,6 +7,7 @@ import SizePage from "./page/size-page/page";
 import ProductDetailPage from "./page/product-detail-page/page";
 import BannerPage from "./page/banner-page/page";
 import UserPage from "./page/user-page/page";
+import OrdersPage from "./page/orders-page/page";
 
 // Import tất cả component admin
 
@@ -20,6 +21,7 @@ const RouterAdmin = () => {
     { path: "/product-detail", element: <ProductDetailPage /> },
     { path: "/banner", element: <BannerPage /> },
     { path: "/users", element: <UserPage /> },
+    { path: "/orders", element: <OrdersPage /> },
     // fallback: nếu path không khớp => chuyển về login
     {
       path: "*",

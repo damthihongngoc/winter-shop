@@ -1,0 +1,46 @@
+// NotFoundClothes.scss
+.not-found-clothes {
+    min-height: 70vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #fafafa;
+    .content {
+        text-align: center;
+        padding: 32px;
+        background: #fff;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+        max-width: 420px;
+        img {
+            width: 120px;
+            margin-bottom: 20px;
+            opacity: 0.9;
+        }
+        h2 {
+            font-size: 22px;
+            color: #333;
+            margin-bottom: 12px;
+        }
+        p {
+            font-size: 15px;
+            color: #666;
+            margin-bottom: 24px;
+            line-height: 1.5;
+        }
+        button {
+            padding: 10px 22px;
+            border: none;
+            border-radius: 999px;
+            background: #000;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            &:hover {
+                background: #444;
+                transform: translateY(-2px);
+            }
+        }
+    }
+}

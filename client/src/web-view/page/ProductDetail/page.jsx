@@ -1,6 +1,7 @@
 import { useParams } from 'react-router-dom'
 import { useEffect, useState } from 'react'
 import ProductDetail from './product-detail'
+import NotFoundClothes from '../../../component/NotFound'
 
 
 export default function ProductDetailWebView() {
@@ -31,7 +32,7 @@ export default function ProductDetailWebView() {
 	}, [id])
 
 	if (loading) return <div>Loading...</div>
-	if (!data) return <div>Not found</div>
+	if (data?.productDetailMain ===null) return <div><NotFoundClothes/></div>
 
 	return <ProductDetail apiData={data} />
 }

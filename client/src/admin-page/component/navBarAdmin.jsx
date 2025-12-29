@@ -7,6 +7,8 @@ import BarChartIcon from "@mui/icons-material/BarChart";
 import InventoryIcon from "@mui/icons-material/Inventory";
 import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
 import PeopleIcon from "@mui/icons-material/People";
+import ReceiptLongIcon from "@mui/icons-material/ReceiptLong";
+
 import {
   Box,
   Typography,
@@ -16,7 +18,6 @@ import {
   ListItemText,
   Divider,
 } from "@mui/material";
-
 const menuItems = [
   { path: "/admin", label: "Trang chủ", icon: <BarChartIcon /> },
   { path: "/admin/banner", label: "Banner", icon: <InventoryIcon /> },
@@ -30,10 +31,15 @@ const menuItems = [
   { path: "/admin/colors", label: "Màu sắc", icon: <ColorLensIcon /> },
   { path: "/admin/sizes", label: "Kích cỡ", icon: <FormatSizeIcon /> },
   {
-  path: "/admin/users",
-  label: "Quản lý user",
-  icon: <PeopleIcon />,
-}
+    path: "/admin/orders",
+    label: "Quản lý đơn hàng",
+    icon: <ReceiptLongIcon />,
+  },
+  {
+    path: "/admin/users",
+    label: "Quản lý user",
+    icon: <PeopleIcon />,
+  },
 ];
 
 const NavBarAdmin = () => {

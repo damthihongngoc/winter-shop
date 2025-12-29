@@ -10,6 +10,7 @@ import About from "./page/About/About.jsx";
 import CartPage from "./page/cart/cart.jsx";
 
 import ProductDetailWebView from "./page/ProductDetail/page.jsx";
+import OrdersPage from "./page/orders/orders.jsx";
 
 // import tất cả component cần dùng
 
@@ -26,6 +27,7 @@ const RouterView = () => {
     { path: "/product-detail/:id", element: <ProductDetailWebView /> },
     { path: "/contact", element: <Contact /> },
     { path: "/cart", element: <CartPage /> },
+    { path: "/orders", element: <OrdersPage /> },
 
     { path: "*", element: <Navigate to="/contact" replace /> },
   ]);

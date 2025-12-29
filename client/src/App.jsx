@@ -17,7 +17,7 @@ function App() {
   return (
     <SnackbarProvider
       maxSnack={3}
-      anchorOrigin={{ vertical: "top", horizontal: "right" }}
+      anchorOrigin={{ vertical: "bottom", horizontal: "left" }}
       autoHideDuration={2000}
     >
       <Router>

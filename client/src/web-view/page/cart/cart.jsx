@@ -1,14 +1,15 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { jwtDecode } from "jwt-decode";
-import "./cart.css";
+import "./cart.scss";
+import { useNavigate } from "react-router-dom";
 
 export default function CartPage() {
   const [cart, setCart] = useState([]);
   const [selectedItems, setSelectedItems] = useState([]); // ⭐ danh sách sản phẩm được chọn
   const [loading, setLoading] = useState(true);
   const [userId, setUserId] = useState(null);
-
+  const navigate = useNavigate();
   const fetchCart = async () => {
     if (userId) {
       const res = await axios.get(`http://localhost:3001/api/cart/${userId}`);
@@ -32,9 +33,7 @@ export default function CartPage() {
   // Toggle chọn 1 sản phẩm
   const toggleSelect = (id) => {
     setSelectedItems((prev) =>
-      prev.includes(id)
-        ? prev.filter((item) => item !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
@@ -48,15 +47,15 @@ export default function CartPage() {
   const unselectAll = () => {
     setSelectedItems([]);
   };
-//  Toggle chọn tất cả / bỏ chọn tất cả
-const toggleSelectAll = () => {
-  if (selectedItems.length === cart.length) {
-    setSelectedItems([]);
-  } else {
-    const allIds = cart.map((item) => item.cart_item_id);
-    setSelectedItems(allIds);
-  }
-};
+  //  Toggle chọn tất cả / bỏ chọn tất cả
+  const toggleSelectAll = () => {
+    if (selectedItems.length === cart.length) {
+      setSelectedItems([]);
+    } else {
+      const allIds = cart.map((item) => item.cart_item_id);
+      setSelectedItems(allIds);
+    }
+  };
 
   //  Thanh toán (lưu vào session)
   const handleCheckout = () => {
@@ -68,10 +67,9 @@ const toggleSelectAll = () => {
       alert("Vui lòng chọn sản phẩm để thanh toán!");
       return;
     }
-
+    console.log("selectedProducts", selectedProducts);
     sessionStorage.setItem("checkout_items", JSON.stringify(selectedProducts));
-
-    window.location.href = "/checkout"; // chuyển trang
+    navigate("/orders");
   };
 
   // Tăng/giảm số lượng
@@ -96,14 +94,15 @@ const toggleSelectAll = () => {
       <h2 className="cart-title">Giỏ hàng của bạn</h2>
 
       {/*  Buttons chọn tất cả / bỏ chọn */}
-    {cart.length > 0 && (
-  <div className="select-actions">
-    <button onClick={toggleSelectAll}>
-      {selectedItems.length === cart.length ? "Bỏ chọn tất cả" : "Chọn tất cả"}
-    </button>
-  </div>
-)}
-
+      {cart.length > 0 && (
+        <div className="select-actions">
+          <button onClick={toggleSelectAll}>
+            {selectedItems.length === cart.length
+              ? "Bỏ chọn tất cả"
+              : "Chọn tất cả"}
+          </button>
+        </div>
+      )}
 
       {cart.length === 0 && (
         <p className="empty-cart">Không có sản phẩm nào trong giỏ hàng.</p>
@@ -111,7 +110,6 @@ const toggleSelectAll = () => {
 
       {cart.map((item) => (
         <div key={item.cart_item_id} className="cart-item">
-          
           {/* Checkbox chọn sản phẩm */}
           <input
             type="checkbox"
@@ -126,7 +124,9 @@ const toggleSelectAll = () => {
             <h3 className="product-name">{item.product_name}</h3>
 
             <p className="product-variant">
-              Size: <span>{item.size}</span> – Color: <span>{item.color}</span>
+              Size: <span className="variant size">{item.size}</span>
+              <span className="divider">•</span>
+              Color: <span className="variant color">{item.color}</span>
             </p>
 
             <p className="product-price">
@@ -134,11 +134,19 @@ const toggleSelectAll = () => {
             </p>
 
             <div className="quantity-control">
-              <button onClick={() => updateQuantity(item.cart_item_id, item.quantity - 1)}>
+              <button
+                onClick={() =>
+                  updateQuantity(item.cart_item_id, item.quantity - 1)
+                }
+              >
                 -
               </button>
               <span>{item.quantity}</span>
-              <button onClick={() => updateQuantity(item.cart_item_id, item.quantity + 1)}>
+              <button
+                onClick={() =>
+                  updateQuantity(item.cart_item_id, item.quantity + 1)
+                }
+              >
                 +
               </button>
             </div>
@@ -155,7 +163,7 @@ const toggleSelectAll = () => {
 
       {cart.length > 0 && (
         <button className="checkout-btn" onClick={handleCheckout}>
-          Thanh toán 
+          Thanh toán
         </button>
       )}
     </div>

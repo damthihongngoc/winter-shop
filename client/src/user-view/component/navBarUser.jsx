@@ -77,7 +77,7 @@ const NavBarUser = () => {
           <ListItem
             button
             component={Link}
-            to="/profile"
+            to="/profile/user"
             sx={{
               borderRadius: "12px",
               color: "#1f1f1f",
@@ -122,7 +122,7 @@ const NavBarUser = () => {
                 <ListItem
                   button
                   component={Link}
-                  to="/profile/don-hang/dang-xu-ly"
+                  to="/profile/don-hang/tat-ca"
                   sx={{
                     pl: 4,
                     color: "#1f1f1f",
@@ -130,8 +130,7 @@ const NavBarUser = () => {
                     mb: 1,
                     borderRadius: "13px",
                     backgroundColor:
-                      location.pathname ===
-                      "/admin/product/don-hang/dang-xu-ly"
+                      location.pathname === "/profile/don-hang/tat-ca"
                         ? "#8aad51"
                         : "transparent", // Kiểm tra nếu đang ở trang này
                     "&:hover": {
@@ -139,9 +138,12 @@ const NavBarUser = () => {
                     },
                   }}
                 >
-                  <ListItemText primary="Đơn hàng đang xử lý" />
+                  <ListItemText primary="Tất cả đơn hàng" />
                 </ListItem>
-                <ListItem
+
+                {/* {"================================================="} */}
+
+                {/* <ListItem
                   button
                   component={Link}
                   to="/profile/don-hang/tat-ca"
@@ -182,7 +184,7 @@ const NavBarUser = () => {
                   }}
                 >
                   <ListItemText primary="Đơn hàng đã giao" />
-                </ListItem>{" "}
+                </ListItem>
                 <ListItem
                   button
                   component={Link}
@@ -203,7 +205,7 @@ const NavBarUser = () => {
                   }}
                 >
                   <ListItemText primary="Đơn hàng đã hủy" />
-                </ListItem>{" "}
+                </ListItem> */}
               </List>
             </Collapse>
           </List>
