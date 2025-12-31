@@ -2,11 +2,35 @@ import pool from "../config/db.js";
 import bcrypt from "bcryptjs";
 
 // 🔹 Lấy tất cả users
-export const getAllUsers = async () => {
+export const getAllUsers = async (options = {}) => {
+  const { page = 1, limit = 10 } = options;
+
+  // Count total users
+  const [countResult] = await pool.query("SELECT COUNT(*) as total FROM users");
+  const totalUsers = countResult[0].total;
+  const totalPages = Math.ceil(totalUsers / limit);
+
+  // Get paginated users
+  const offset = (page - 1) * limit;
   const [rows] = await pool.query(
-    "SELECT user_id, name, email, phone, address, role, created_at, updated_at FROM users ORDER BY user_id DESC"
+    `SELECT user_id, name, email, phone, address, role, created_at, updated_at
+         FROM users
+         ORDER BY user_id DESC
+         LIMIT ? OFFSET ?`,
+    [limit, offset]
   );
-  return rows;
+
+  return {
+    users: rows,
+    pagination: {
+      currentPage: page,
+      totalPages: totalPages,
+      totalUsers: totalUsers,
+      itemsPerPage: limit,
+      hasNextPage: page < totalPages,
+      hasPrevPage: page > 1,
+    },
+  };
 };
 
 // 🔹 Lấy user theo ID

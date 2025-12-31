@@ -31,22 +31,36 @@ export default function Contact() {
         {/* 🧾 Nội dung chính */}
         <div className="contact-content">
           {/* Form liên hệ */}
-          <motion.form
-            className="contact-form"
+          <motion.div
+            className="contact-quick"
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: 0.5, duration: 0.8 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              alert("Cảm ơn bạn đã liên hệ! Chúng tôi sẽ phản hồi sớm nhất.");
-            }}
           >
-            <input type="text" placeholder="Họ và tên" required />
-            <input type="email" placeholder="Email của bạn" required />
-            <input type="text" placeholder="Số điện thoại" />
-            <textarea placeholder="Nội dung cần liên hệ..." required></textarea>
-            <button type="submit">Gửi liên hệ</button>
-          </motion.form>
+            <h2>📞 Liên hệ nhanh</h2>
+            <p>
+              Bạn có thể liên hệ trực tiếp với <strong>WinterShop</strong> qua
+              các kênh bên dưới để được hỗ trợ nhanh nhất.
+            </p>
+
+            <div className="contact-actions">
+              <a href="tel:0987654321" className="phone">
+                📞 Gọi ngay: 0987 654 321
+              </a>
+
+              <a href="https://zalo.me" target="_blank" className="zalo">
+                💬 Chat Zalo
+              </a>
+
+              <a
+                href="https://facebook.com"
+                target="_blank"
+                className="facebook"
+              >
+                📘 Fanpage Facebook
+              </a>
+            </div>
+          </motion.div>
 
           {/* Thông tin liên hệ */}
           <motion.div
@@ -66,6 +80,23 @@ export default function Contact() {
 
             <h3>🕐 Giờ làm việc</h3>
             <p>Thứ 2 - CN: 8:00 - 21:00</p>
+          </motion.div>
+
+          <motion.div
+            className="contact-quick"
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: 0.5, duration: 0.8 }}
+          >
+            <h2>📍 Vị trí cửa hàng</h2>
+
+            <iframe
+              src="https://www.google.com/maps?q=Nguyễn+Trãi+Quận+5&output=embed"
+              width="100%"
+              height="300"
+              style={{ border: 0, borderRadius: "12px" }}
+              loading="lazy"
+            ></iframe>
           </motion.div>
         </div>
       </div>

@@ -3,8 +3,12 @@ import * as UserService from "../services/user.service.js";
 
 export const getUsers = async (req, res) => {
     try {
-        const users = await UserService.getAllUsers();
-        res.json(users);
+        const { page = 1, limit = 10 } = req.query;
+        const result = await UserService.getAllUsers({
+            page: parseInt(page),
+            limit: parseInt(limit),
+        });
+        res.json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }

@@ -89,7 +89,7 @@ export const verifyAdmin = async (accessToken) => {
   }
 
   try {
-    const response = await axios.post(`${apiUrl}/verify-admin`, {
+    const response = await axios.post(`${apiUrl}/auth/verify-admin`, {
       token: accessToken,
     });
 

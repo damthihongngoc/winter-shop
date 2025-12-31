@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import "./Home.css";
+import "./home.css";
 import { useState, useEffect } from "react";
 
 // 🌀 Swiper
@@ -10,23 +10,25 @@ import "swiper/css";
 import "swiper/css/navigation";
 import "swiper/css/pagination";
 
-import ProductList from "../../../component/productList";
 import axios from "axios";
+import CategoryList from "../../../component/CategoryList";
+import SectionHome from "../../../component/SectionHome";
 
 function Home() {
   const navigate = useNavigate();
   const [activeIndex, setActiveIndex] = useState(0);
   const [slides, setSlides] = useState([]);
 
-  
   // 🟦 Gọi API lấy danh sách ảnh
   useEffect(() => {
     const fetchSlides = async () => {
       try {
-        const response = await axios.get("http://localhost:3001/api/banners/public");
-        const data = response.data
-        console.log(data)
-        setSlides(data);
+        const response = await axios.get(
+          "http://localhost:3001/api/banners/public"
+        );
+        const data = response.data;
+        console.log(data);
+        setSlides(data.banners);
       } catch (error) {
         console.error("Lỗi khi lấy dữ liệu slide:", error);
       }
@@ -34,12 +36,11 @@ function Home() {
 
     fetchSlides();
   }, []);
-  const handleNavigate = (item)=>{
-    if(item){
-        window.location.href = item.link
+  const handleNavigate = (item) => {
+    if (item) {
+      window.location.href = item.link;
     }
-   
-  }
+  };
 
   return (
     <div className="home-container">
@@ -57,7 +58,11 @@ function Home() {
         {slides.length > 0 ? (
           slides.map((item) => (
             <SwiperSlide key={item.banner_id}>
-              <img onClick={()=>handleNavigate(item)} src={item.image} alt={`Slide ${item.banner_id}`} />
+              <img
+                onClick={() => handleNavigate(item)}
+                src={item.image}
+                alt={`Slide ${item.banner_id}`}
+              />
             </SwiperSlide>
           ))
         ) : (
@@ -65,7 +70,9 @@ function Home() {
         )}
       </Swiper>
 
-      <ProductList maxResponseProduct={12} />
+      <CategoryList />
+
+      <SectionHome />
     </div>
   );
 }

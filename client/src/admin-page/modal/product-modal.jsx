@@ -81,8 +81,8 @@ export default function ProductFormModal({
           onChange={(e) => setForm({ ...form, status: e.target.value })}
           sx={{ mt: 2 }}
         >
-          <MenuItem value="active">Hoạt động</MenuItem>
-          <MenuItem value="inactive">Ngưng</MenuItem>
+          <MenuItem value="active">Còn hàng</MenuItem>
+          <MenuItem value="inactive">Hết hàng</MenuItem>
         </TextField>
       </DialogContent>
 

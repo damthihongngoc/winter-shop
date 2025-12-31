@@ -12,7 +12,6 @@ const UserRouter = () => {
       path: "/don-hang/tat-ca",
       element: <UserOrdersPage />,
     },
-
     {
       path: "*",
       element: <Navigate to="/login" replace />,

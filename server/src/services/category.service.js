@@ -1,12 +1,30 @@
 import pool from "../config/db.js";
 
 export const CategoryService = {
-    async getAll() {
+    async getAll(options = {}) {
+        const { page = 1, limit = 10 } = options;
+
+        const [countResult] = await pool.query("SELECT COUNT(*) as total FROM categories");
+        const totalCategories = countResult[0].total;
+        const totalPages = Math.ceil(totalCategories / limit);
+
+        const offset = (page - 1) * limit;
         const [rows] = await pool.query(
-            "SELECT * FROM categories ORDER BY created_at DESC"
+            "SELECT * FROM categories ORDER BY created_at DESC LIMIT ? OFFSET ?",
+            [limit, offset]
         );
-        const helo = 'oke bne'
-        return rows;
+
+        return {
+            categories: rows,
+            pagination: {
+                currentPage: page,
+                totalPages,
+                totalCategories,
+                itemsPerPage: limit,
+                hasNextPage: page < totalPages,
+                hasPrevPage: page > 1,
+            },
+        };
     },
 
     async getById(id) {

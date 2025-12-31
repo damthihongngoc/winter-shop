@@ -9,18 +9,21 @@ import {
 } from "../services/productDetail.service.js";
 
 
-export const getAllProductDetails = async(req, res) => {
+export const getAllProductDetails = async (req, res) => {
     try {
-        const data = await getAllProductDetailsService();
-        res.json(data);
+        const { page = 1, limit = 10 } = req.query;
+        const result = await getAllProductDetailsService({
+            page: parseInt(page),
+            limit: parseInt(limit),
+        });
+        res.json(result);
     } catch (error) {
         console.error(error);
-        res
-            .status(500)
-            .json({ message: "Lỗi server khi lấy danh sách chi tiết sản phẩm" });
+        res.status(500).json({ message: "Lỗi server khi lấy danh sách chi tiết sản phẩm" });
     }
 };
-export const getAllProductDetailById = async(req, res) => {
+
+export const getAllProductDetailById = async (req, res) => {
     try {
         const id = req.params.id;
         const data = await getAllProductDetailByIdService(id);
@@ -38,7 +41,7 @@ export const getAllProductDetailById = async(req, res) => {
 
 
 
-export const getProductDetailById = async(req, res) => {
+export const getProductDetailById = async (req, res) => {
     try {
         const detail = await getProductDetailByIdService(req.params.id);
         if (!detail)
@@ -51,7 +54,7 @@ export const getProductDetailById = async(req, res) => {
         res.status(500).json({ message: "Lỗi server" });
     }
 };
-export const getProductDetailsByCategory = async(req, res) => {
+export const getProductDetailsByCategory = async (req, res) => {
     try {
         console.log("oke");
         const detail = await getProductDetailsByCategoryServices(req.params.id);
@@ -66,7 +69,7 @@ export const getProductDetailsByCategory = async(req, res) => {
     }
 };
 // 🟢 Thêm mới
-export const createProductDetail = async(req, res) => {
+export const createProductDetail = async (req, res) => {
     try {
         const data = {
             ...req.body,
@@ -85,7 +88,7 @@ export const createProductDetail = async(req, res) => {
 };
 
 // 🟢 Cập nhật
-export const updateProductDetail = async(req, res) => {
+export const updateProductDetail = async (req, res) => {
     try {
         const data = {
             ...req.body,
@@ -104,7 +107,7 @@ export const updateProductDetail = async(req, res) => {
 };
 
 // 🟢 Xóa
-export const deleteProductDetail = async(req, res) => {
+export const deleteProductDetail = async (req, res) => {
     try {
         const affected = await deleteProductDetailService(req.params.id);
         if (affected === 0)

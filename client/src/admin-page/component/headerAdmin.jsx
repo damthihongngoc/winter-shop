@@ -79,7 +79,7 @@ const HeaderAdmin = () => {
   };
   const handleLogout = async () => {
     try {
-      localStorage.removeItem("token")
+      localStorage.removeItem("token");
       navigate("/");
     } catch (error) {
       console.error("Error during logout:", error);
@@ -94,9 +94,8 @@ const HeaderAdmin = () => {
             display: "flex",
             flexGrow: 1,
             alignItems: "center",
-          }} 
+          }}
         >
-        
           <Typography
             variant="h6"
             component={Link}
@@ -108,11 +107,9 @@ const HeaderAdmin = () => {
               color: "white",
               textDecoration: "none",
             }}
-          >
-          </Typography>
+          ></Typography>
         </Box>
 
-      
         {/* Right section: User and Cart */}
         <Box sx={{ display: "flex", alignItems: "center" }}>
           {userInfo ? (
@@ -146,7 +143,6 @@ const HeaderAdmin = () => {
                   Thông tin cá nhân
                 </MenuItem>
 
-                
                 <MenuItem onClick={handleLogout}>Đăng xuất</MenuItem>
               </Menu>
             </>
@@ -155,10 +151,10 @@ const HeaderAdmin = () => {
               {" "}
               <IconButton
                 component={Link} // Sử dụng Link làm component
-                to="/login" 
+                to="/login"
                 sx={{
                   color: "white",
-                  textDecoration: "none", 
+                  textDecoration: "none",
                 }}
               >
                 <AccountCircle />

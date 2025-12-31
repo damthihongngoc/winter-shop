@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./product-detail.scss";
 import GalleryModal from "../../../component/GalleryModal";
 import { enqueueSnackbar } from "notistack";
@@ -6,65 +6,86 @@ import axios from "axios";
 import { jwtDecode } from "jwt-decode";
 import { useCart } from "../../../hook/CartContext";
 
-export default function ProductDetail({ apiData }) {
+export default function ProductDetail({ productData }) {
   const { refreshCartQuantity } = useCart();
-
-  const { productDetailMain, otherProductDetails, images } = apiData;
+  const [openSizeGuide, setOpenSizeGuide] = useState(false);
   const [quantity, setQuantity] = useState(1);
-  const [selectedDetail, setSelectedDetail] = useState(productDetailMain);
+  const [selectedColor, setSelectedColor] = useState(null);
+  const [selectedSize, setSelectedSize] = useState(null);
+  const [selectedDetail, setSelectedDetail] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [isGalleryOpen, setIsGalleryOpen] = useState(false);
 
-  const allDetails = [productDetailMain, ...otherProductDetails];
+  // ⭐ KHỞI TẠO GIÁ TRỊ ĐẦU TIÊN
+  useEffect(() => {
+    if (productData.details && productData.details.length > 0) {
+      const firstDetail = productData.details[0];
+      setSelectedColor(firstDetail.color);
+      setSelectedSize(firstDetail.size);
+      setSelectedDetail(firstDetail);
+    }
+  }, [productData]);
 
-  const colors = [
-    ...new Map(
-      allDetails.map((d) => [
-        d?.color_id,
-        {
-          id: d?.color_id,
-          name: d?.color_name,
-          hex_code: d?.hex_code,
-        },
+  // ⭐ LẤY DANH SÁCH MÀU UNIQUE
+  const colors = Array.from(
+    new Map(
+      productData.details.map((d) => [
+        d.color, // key = color name
+        { name: d.color, hexCode: d.hexCode },
       ])
-    ).values(),
-  ];
-
-  // Lấy sizes theo màu đã chọn 123
-  const sizesByColor = allDetails.filter(
-    (d) => d.color_id === selectedDetail.color_id
+    ).values()
   );
 
+  // ⭐ LẤY DANH SÁCH SIZE THEO MÀU ĐÃ CHỌN
+  const availableSizes = productData.details
+    .filter((d) => d.color === selectedColor)
+    .map((d) => ({
+      size: d.size,
+      stock: d.stock,
+      detail: d,
+    }));
+
+  // ⭐ TẠO DANH SÁCH ẢNH (có thể mở rộng sau)
+  // Hiện tại: lấy ảnh từ thumbnail của product + image của các details
+  const images = [
+    productData.thumbnail,
+    ...productData.details
+      .map((d) => d.image)
+      .filter((img) => img !== productData.thumbnail),
+  ].filter(Boolean); // Loại bỏ null/undefined
+
+  // ⭐ XỬ LÝ KHI CHỌN MÀU
+  const handleColorChange = (color) => {
+    setSelectedColor(color);
+    // Tự động chọn size đầu tiên của màu mới
+    const firstSizeOfColor = productData.details.find((d) => d.color === color);
+    if (firstSizeOfColor) {
+      setSelectedSize(firstSizeOfColor.size);
+      setSelectedDetail(firstSizeOfColor);
+      setSelectedImageIndex(0);
+    }
+  };
+
+  // ⭐ XỬ LÝ KHI CHỌN SIZE
+  const handleSizeChange = (size, detail) => {
+    setSelectedSize(size);
+    setSelectedDetail(detail);
+  };
+
   const handleIncrease = () => {
-    setQuantity((prev) => prev + 1);
+    if (selectedDetail && quantity < selectedDetail.stock) {
+      setQuantity((prev) => prev + 1);
+    } else {
+      enqueueSnackbar("Đã đạt số lượng tối đa trong kho", {
+        variant: "warning",
+      });
+    }
   };
 
   const handleDecrease = () => {
     setQuantity((prev) => (prev > 1 ? prev - 1 : 1));
   };
 
-  const promotions = [
-    {
-      icon: "🚚",
-      text: "Giao hàng nhanh toàn quốc",
-    },
-    {
-      icon: "🎁",
-      text: "Tặng túi / hộp khi mua online",
-    },
-    {
-      icon: "🔄",
-      text: "Đổi trả trong 7 ngày nếu sản phẩm lỗi",
-    },
-    {
-      icon: "🧵",
-      text: "Cam kết sản phẩm chính hãng 100%",
-    },
-    {
-      icon: "💬",
-      text: "Hỗ trợ tư vấn trực tuyến 24/7",
-    },
-  ];
   const handleAddToCart = async () => {
     const token = localStorage.getItem("token");
 
@@ -74,6 +95,17 @@ export default function ProductDetail({ apiData }) {
       });
       return;
     }
+
+    if (!selectedDetail) {
+      enqueueSnackbar("Vui lòng chọn màu và size", { variant: "warning" });
+      return;
+    }
+
+    if (selectedDetail.stock === 0) {
+      enqueueSnackbar("Sản phẩm đã hết hàng", { variant: "error" });
+      return;
+    }
+
     const parseToken = jwtDecode(token);
     try {
       const response = await axios.post(
@@ -89,11 +121,13 @@ export default function ProductDetail({ apiData }) {
           },
         }
       );
+
       if (response.status === 200) {
         refreshCartQuantity();
         enqueueSnackbar(`Đã thêm ${quantity} sản phẩm vào giỏ!`, {
           variant: "success",
         });
+        setQuantity(1); // Reset về 1
       }
     } catch (error) {
       enqueueSnackbar("Lỗi khi thêm vào giỏ", { variant: "error" });
@@ -101,21 +135,35 @@ export default function ProductDetail({ apiData }) {
     }
   };
 
+  const promotions = [
+    { icon: "🚚", text: "Giao hàng nhanh toàn quốc" },
+    { icon: "🎁", text: "Tặng túi / hộp khi mua online" },
+    { icon: "🔄", text: "Đổi trả trong 7 ngày nếu sản phẩm lỗi" },
+    { icon: "🧵", text: "Cam kết sản phẩm chính hãng 100%" },
+    { icon: "💬", text: "Hỗ trợ tư vấn trực tuyến 24/7" },
+  ];
+
   return (
     <>
       <div className="product-detail-container">
         {/* ===== PHẦN ẢNH ===== */}
         <div className="product-gallery">
-          {/* Ảnh chính */}
           <div
             className="main-image-wrapper"
             onClick={() => setIsGalleryOpen(true)}
           >
-            <img src={images[selectedImageIndex]} alt="Product main" />
+            <img
+              src={
+                selectedDetail?.image ||
+                images[selectedImageIndex] ||
+                productData.thumbnail
+              }
+              alt="Product main"
+            />
             <div className="zoom-hint">Phóng to</div>
           </div>
 
-          {/* Thumbnails ngang bên dưới */}
+          {/* Thumbnails */}
           <div className="thumbnails-horizontal">
             {images.map((img, index) => (
               <div
@@ -133,13 +181,14 @@ export default function ProductDetail({ apiData }) {
 
         {/* ===== PHẦN THÔNG TIN ===== */}
         <div className="product-info">
-          <h1 className="product-title">{selectedDetail.product_name}</h1>
-
-          {/* <div className="rating">★★★★★ 0 đánh giá</div> */}
+          <h1 className="product-title">{productData.name}</h1>
 
           <div className="price-section">
             <span className="price">
-              {Number(selectedDetail.price).toLocaleString("vi-VN")}đ
+              {Number(
+                selectedDetail?.price || productData.price
+              ).toLocaleString("vi-VN")}
+              đ
             </span>
           </div>
 
@@ -148,7 +197,6 @@ export default function ProductDetail({ apiData }) {
             <div className="promotion-title">
               <span className="icon">⭐</span> ƯU ĐÃI KHI MUA ONLINE
             </div>
-
             <div className="promotion-list">
               {promotions.map((p, index) => (
                 <div key={index} className="promotion-item">
@@ -159,52 +207,52 @@ export default function ProductDetail({ apiData }) {
             </div>
           </div>
 
-          {/* Màu sắc */}
+          {/* ⭐ MÀU SẮC - LOGIC MỚI */}
           <div className="variant-section">
             <div className="variant-label">
-              Màu sắc: <strong>{selectedDetail.color_name}</strong>
+              Màu sắc: <strong>{selectedColor}</strong>
             </div>
             <div className="color-options">
               {colors.map((color) => (
                 <button
-                  key={color.id}
-                  className={`color-btn ${
-                    color.id === selectedDetail.color_id ? "active" : ""
-                  }`}
-                  style={{ backgroundColor: `${color?.hex_code}` }}
-                  onClick={() => {
-                    const firstOfColor = allDetails.find(
-                      (d) => d.color_id === color.id
-                    );
-                    setSelectedDetail(firstOfColor);
-                    setSelectedImageIndex(0); // reset ảnh về đầu khi đổi màu
+                  key={color.name}
+                  style={{
+                    background: color.hexCode || "#ccc",
                   }}
+                  className={`color-btn ${
+                    color.name === selectedColor ? "active" : ""
+                  }`}
+                  onClick={() => handleColorChange(color.name)}
                 >
-                  {/* <img src={color.thumbnail} alt={color.name} /> */}
+                  {/* {color} */}
                 </button>
               ))}
             </div>
           </div>
 
-          {/* Kích thước */}
+          {/* ⭐ KÍCH THƯỚC - LOGIC MỚI */}
           <div className="variant-section">
             <div className="variant-label">
-              Kích thước: <strong>{selectedDetail.size_name}</strong>
-              <a href="#" className="size-guide">
+              Kích thước: <strong>{selectedSize}</strong>
+              <button
+                type="button"
+                className="size-guide"
+                onClick={() => setOpenSizeGuide(true)}
+              >
                 Hướng dẫn chọn size
-              </a>
+              </button>
             </div>
             <div className="size-options">
-              {sizesByColor.map((size) => (
+              {availableSizes.map(({ size, stock, detail }) => (
                 <button
-                  key={size.size_id}
+                  key={size}
                   className={`size-btn ${
-                    size.size_id === selectedDetail.size_id ? "active" : ""
-                  } ${size.stock === 0 ? "disabled" : ""}`}
-                  onClick={() => setSelectedDetail(size)}
-                  disabled={size.stock === 0}
+                    size === selectedSize ? "active" : ""
+                  } ${stock === 0 ? "disabled" : ""}`}
+                  onClick={() => handleSizeChange(size, detail)}
+                  disabled={stock === 0}
                 >
-                  {size.size_name}
+                  {size}
                 </button>
               ))}
             </div>
@@ -213,20 +261,35 @@ export default function ProductDetail({ apiData }) {
           {/* Số lượng & Nút mua */}
           <div className="action-section">
             <div className="quantity">
-              <button onClick={handleDecrease}>-</button>
+              <button
+                style={{ margin: 0, height: "100%" }}
+                onClick={handleDecrease}
+              >
+                -
+              </button>
               <span>{quantity}</span>
-              <button onClick={handleIncrease}>+</button>
+              <button
+                style={{ margin: 0, height: "100%" }}
+                onClick={handleIncrease}
+              >
+                +
+              </button>
             </div>
 
-            <button className="add-to-cart" onClick={handleAddToCart}>
-              THÊM VÀO GIỎ
+            <button
+              className="add-to-cart"
+              style={{ margin: 0, height: "100%" }}
+              onClick={handleAddToCart}
+              disabled={!selectedDetail || selectedDetail.stock === 0}
+            >
+              {selectedDetail?.stock === 0 ? "HẾT HÀNG" : "THÊM VÀO GIỎ"}
             </button>
-            {/* <button className="buy-now">MUA NGAY</button> */}
           </div>
+
           {/* Tồn kho */}
           <div className="stock-info">
-            Có <strong>{selectedDetail?.stock} sản phẩm</strong> còn sản phẩm
-            này trong kho.
+            Còn <strong>{selectedDetail?.stock || 0}</strong> sản phẩm trong
+            kho.
           </div>
         </div>
       </div>
@@ -238,6 +301,23 @@ export default function ProductDetail({ apiData }) {
           index={selectedImageIndex}
           onClose={() => setIsGalleryOpen(false)}
         />
+      )}
+
+      {openSizeGuide && (
+        <div
+          className="size-guide-modal"
+          onClick={() => setOpenSizeGuide(false)}
+        >
+          <div
+            className="size-guide-content"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <img
+              src="https://file.hstatic.net/1000184601/file/01_7d60048803214e62bd2bcbc4a3e6da81.png"
+              alt="Hướng dẫn chọn size"
+            />
+          </div>
+        </div>
       )}
     </>
   );

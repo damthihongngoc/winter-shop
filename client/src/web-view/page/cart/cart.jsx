@@ -116,47 +116,80 @@ export default function CartPage() {
             checked={selectedItems.includes(item.cart_item_id)}
             onChange={() => toggleSelect(item.cart_item_id)}
             className="cart-checkbox"
+            style={{
+              width: "20px",
+              height: "20px",
+            }}
           />
 
           <img src={item.image} alt="" className="cart-item-image" />
 
-          <div className="cart-item-info">
-            <h3 className="product-name">{item.product_name}</h3>
+          <div
+            className="cart-item-info"
+            style={{
+              display: "flex",
+              justifyContent: "space-between",
+              alignItems: "center",
+              width: "100%",
+            }}
+          >
+            <div style={{}}>
+              <h3 className="product-name">{item.product_name}</h3>
 
-            <p className="product-variant">
-              Size: <span className="variant size">{item.size}</span>
-              <span className="divider">•</span>
-              Color: <span className="variant color">{item.color}</span>
-            </p>
-
-            <p className="product-price">
-              {new Intl.NumberFormat("vi-VN").format(item?.price)} đ
-            </p>
-
-            <div className="quantity-control">
-              <button
-                onClick={() =>
-                  updateQuantity(item.cart_item_id, item.quantity - 1)
-                }
+              <p className="product-variant">
+                Size: <span className="variant size">{item.size}</span>
+                <span className="divider">•</span>
+                Color: <span className="variant color">{item.color}</span>
+              </p>
+              <p className="product-price">
+                {new Intl.NumberFormat("vi-VN").format(item?.price)} đ
+              </p>
+            </div>
+            <div>
+              {/* Total price */}
+              <p
+                className="item-total-price"
+                style={{
+                  fontWeight: 600,
+                  marginBottom: "8px",
+                  textAlign: "right",
+                }}
               >
-                -
-              </button>
-              <span>{item.quantity}</span>
+                Tổng:{" "}
+                {new Intl.NumberFormat("vi-VN").format(
+                  item.price * item.quantity
+                )}{" "}
+                đ
+              </p>
+
+              <div className="quantity-control">
+                <button
+                  style={{ margin: 0 }}
+                  onClick={() =>
+                    updateQuantity(item.cart_item_id, item.quantity - 1)
+                  }
+                >
+                  -
+                </button>
+                <span>{item.quantity}</span>
+                <button
+                  style={{ margin: 0 }}
+                  onClick={() =>
+                    updateQuantity(item.cart_item_id, item.quantity + 1)
+                  }
+                >
+                  +
+                </button>
+              </div>
+
               <button
-                onClick={() =>
-                  updateQuantity(item.cart_item_id, item.quantity + 1)
-                }
+                style={{ width: "100%" }}
+                className="remove-btn"
+                onClick={() => removeItem(item.cart_item_id)}
               >
-                +
+                Xóa sản phẩm
               </button>
             </div>
-
-            <button
-              className="remove-btn"
-              onClick={() => removeItem(item.cart_item_id)}
-            >
-              Xóa sản phẩm
-            </button>
           </div>
         </div>
       ))}

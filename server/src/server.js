@@ -1,4 +1,4 @@
-// server.js
+import http from "http";
 import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
@@ -15,9 +15,15 @@ import authRoutes from "./router/auth.routes.js";
 import userRoutes from "./router/user.routes.js";
 import cartRouters from "./router/cart.routes.js";
 import orderRouters from "./router/order.routes.js";
+import statsRoutes from "./router/stats.route.js";
+import notificationRoutes from "./router/notification.route.js";
+
+import { initSocket } from "./config/socket.js";
+
 dotenv.config();
 
 const app = express();
+const server = http.createServer(app);
 const PORT = process.env.PORT || 3001;
 
 // Middleware
@@ -46,7 +52,10 @@ app.use(
   express.static(path.join(appRoot.path, "src/public/images"))
 );
 
+initSocket(server);
+
 // Routes
+app.use("/api/stats", statsRoutes);
 app.use("/api/categories", categoryRoutes);
 app.use("/api/products", productRouters);
 app.use("/api/colors", colorRouters);
@@ -57,6 +66,7 @@ app.use("/api/banners", bannerRouters);
 app.use("/api/users", userRoutes);
 app.use("/api/cart", cartRouters);
 app.use("/api/orders", orderRouters);
+app.use("/api/notifications", notificationRoutes);
 
 // Route test
 app.get("/", (req, res) => {
@@ -242,6 +252,6 @@ app.get("/danh-sach-nguoi-dung/:id", (req, res) => {
 });
 
 // Start server
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`✅ Server chạy tại http://localhost:${PORT}`);
 });

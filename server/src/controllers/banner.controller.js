@@ -2,12 +2,17 @@ import * as BannerService from "../services/banner.service.js";
 
 export const getBanners = async (req, res) => {
     try {
-        const banners = await BannerService.getAllBanners();
-        res.json(banners);
+        const { page = 1, limit = 10 } = req.query;
+        const result = await BannerService.getAllBanners({
+            page: parseInt(page),
+            limit: parseInt(limit),
+        });
+        res.json(result);
     } catch (error) {
         res.status(500).json({ error: error.message });
     }
 };
+
 export const getPublicBanners = async (req, res) => {
     try {
         const banners = await BannerService.getAllBanners();

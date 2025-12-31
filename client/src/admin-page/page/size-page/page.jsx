@@ -13,6 +13,8 @@ import {
   TableRow,
   IconButton,
   Button,
+  Pagination,
+  Stack,
 } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
@@ -20,6 +22,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import DeleteModal from "../../modal/delete-modal";
 import SizeFormModal from "../../modal/size-modal";
+import PageLayout from "../../component/PageLayout";
 
 const API_URL = "http://localhost:3001/api/sizes";
 
@@ -28,24 +31,40 @@ export default function SizePage() {
   const [form, setForm] = useState({ name: "" });
   const [editingId, setEditingId] = useState(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalSizes, setTotalSizes] = useState(0);
+  const [itemsPerPage] = useState(10);
+
   const [deleteId, setDeleteId] = useState(null);
   const [openFormModal, setOpenFormModal] = useState(false);
 
-  // Lấy danh sách sizes
-  const fetchSizes = async () => {
+  const fetchSizes = async (page = 1) => {
     try {
-      const res = await axios.get(API_URL);
-      setSizes(res.data);
+      const res = await axios.get(API_URL, {
+        params: { page, limit: itemsPerPage },
+      });
+      setSizes(res.data.sizes || res.data);
+
+      if (res.data.pagination) {
+        setCurrentPage(res.data.pagination.currentPage);
+        setTotalPages(res.data.pagination.totalPages);
+        setTotalSizes(res.data.pagination.totalSizes);
+      }
     } catch (error) {
-      console.error("Lỗi khi tải danh sách sizes:", error);
+      console.error("Error fetching sizes:", error);
     }
   };
 
   useEffect(() => {
-    fetchSizes();
-  }, []);
+    fetchSizes(currentPage);
+  }, [currentPage]);
 
-  // Thêm hoặc cập nhật
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
+
   const handleSubmit = async () => {
     if (!form.name.trim()) return alert("Vui lòng nhập tên size!");
 
@@ -59,50 +78,59 @@ export default function SizePage() {
       setForm({ name: "" });
       setEditingId(null);
       setOpenFormModal(false);
-      fetchSizes();
+      fetchSizes(currentPage);
     } catch (error) {
-      console.error("Lỗi khi lưu size:", error);
+      console.error("Error submitting size:", error);
+      alert("Có lỗi xảy ra khi lưu size!");
     }
   };
 
-  // Sửa
   const handleEdit = (size) => {
     setForm({ name: size.name });
     setEditingId(size.size_id);
     setOpenFormModal(true);
   };
 
-  // Tạo mới
   const handleCreate = () => {
     setForm({ name: "" });
     setEditingId(null);
     setOpenFormModal(true);
   };
 
-  // Xóa
   const handleDelete = async () => {
     try {
       await axios.delete(`${API_URL}/${deleteId}`);
       setDeleteId(null);
-      fetchSizes();
+
+      if (sizes.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        fetchSizes(currentPage);
+      }
     } catch (error) {
-      console.error("Lỗi khi xóa size:", error);
+      console.error("Error deleting size:", error);
+      alert("Có lỗi xảy ra khi xóa size!");
     }
   };
 
   return (
-    <Box sx={{ maxWidth: 1200, margin: "40px auto" }}>
-      <Typography variant="h4" mb={3}>
-         Quản lý Sizes
-      </Typography>
+    <PageLayout
+      title="Quản lý Sizes"
+      extra={
+        <Button variant="contained" sx={{ mb: 2 }} onClick={handleCreate}>
+          Thêm size
+        </Button>
+      }
+    >
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          Hiển thị {sizes.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0}{" "}
+          - {Math.min(currentPage * itemsPerPage, totalSizes)} của {totalSizes}{" "}
+          size
+        </Typography>
+      </Box>
 
-      {/* BUTTON THÊM */}
-      <Button variant="contained" sx={{ mb: 2 }} onClick={handleCreate}>
-         Thêm size
-      </Button>
-
-      {/* TABLE */}
-      <TableContainer sx={{minWidth: 900}} component={Paper}>
+      <TableContainer sx={{ minWidth: 900 }} component={Paper}>
         <Table>
           <TableHead sx={{ background: "#f3f3f3" }}>
             <TableRow>
@@ -113,29 +141,58 @@ export default function SizePage() {
           </TableHead>
 
           <TableBody>
-            {sizes.map((size) => (
-              <TableRow key={size.size_id}>
-                <TableCell>{size.size_id}</TableCell>
-                <TableCell>{size.name}</TableCell>
-                <TableCell>
-                  <IconButton color="primary" onClick={() => handleEdit(size)}>
-                    <EditIcon />
-                  </IconButton>
-
-                  <IconButton
-                    color="error"
-                    onClick={() => setDeleteId(size.size_id)}
+            {sizes.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={3} align="center">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ py: 3 }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
+                    Không có size nào
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              sizes.map((size) => (
+                <TableRow key={size.size_id}>
+                  <TableCell>{size.size_id}</TableCell>
+                  <TableCell>{size.name}</TableCell>
+                  <TableCell>
+                    <IconButton
+                      color="primary"
+                      onClick={() => handleEdit(size)}
+                    >
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      onClick={() => setDeleteId(size.size_id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* MODAL FORM */}
+      {totalPages > 1 && (
+        <Stack spacing={2} sx={{ mt: 3, alignItems: "center" }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            showFirstButton
+            showLastButton
+          />
+        </Stack>
+      )}
+
       <SizeFormModal
         open={openFormModal}
         form={form}
@@ -145,12 +202,11 @@ export default function SizePage() {
         editingId={editingId}
       />
 
-      {/* MODAL XÓA */}
       <DeleteModal
         open={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
       />
-    </Box>
+    </PageLayout>
   );
 }

@@ -12,6 +12,8 @@ import {
   TableRow,
   IconButton,
   Button,
+  Pagination,
+  Stack,
 } from "@mui/material";
 
 import EditIcon from "@mui/icons-material/Edit";
@@ -19,6 +21,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 
 import DeleteModal from "../../modal/delete-modal";
 import CategoryFormModal from "../../modal/category-modal";
+import PageLayout from "../../component/PageLayout";
 
 const API_URL = "http://localhost:3001/api/categories";
 
@@ -27,31 +30,58 @@ export default function CategoryPage() {
   const [form, setForm] = useState({ name: "", description: "" });
   const [editingId, setEditingId] = useState(null);
 
+  // Pagination states
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCategories, setTotalCategories] = useState(0);
+  const [itemsPerPage] = useState(10);
+
   const [deleteId, setDeleteId] = useState(null);
   const [openFormModal, setOpenFormModal] = useState(false);
 
-  const fetchCategories = async () => {
-    const res = await axios.get(API_URL);
-    setCategories(res.data);
+  const fetchCategories = async (page = 1) => {
+    try {
+      const res = await axios.get(API_URL, {
+        params: { page, limit: itemsPerPage },
+      });
+      setCategories(res.data.categories || res.data);
+
+      if (res.data.pagination) {
+        setCurrentPage(res.data.pagination.currentPage);
+        setTotalPages(res.data.pagination.totalPages);
+        setTotalCategories(res.data.pagination.totalCategories);
+      }
+    } catch (error) {
+      console.error("Error fetching categories:", error);
+    }
   };
 
   useEffect(() => {
-    fetchCategories();
-  }, []);
+    fetchCategories(currentPage);
+  }, [currentPage]);
+
+  const handlePageChange = (event, value) => {
+    setCurrentPage(value);
+  };
 
   const handleSubmit = async () => {
     if (!form.name.trim()) return alert("Vui lòng nhập tên!");
 
-    if (editingId) {
-      await axios.put(`${API_URL}/${editingId}`, form);
-    } else {
-      await axios.post(API_URL, form);
-    }
+    try {
+      if (editingId) {
+        await axios.put(`${API_URL}/${editingId}`, form);
+      } else {
+        await axios.post(API_URL, form);
+      }
 
-    setForm({ name: "", description: "" });
-    setEditingId(null);
-    setOpenFormModal(false);
-    fetchCategories();
+      setForm({ name: "", description: "" });
+      setEditingId(null);
+      setOpenFormModal(false);
+      fetchCategories(currentPage);
+    } catch (error) {
+      console.error("Error submitting category:", error);
+      alert("Có lỗi xảy ra khi lưu danh mục!");
+    }
   };
 
   const handleEdit = (cat) => {
@@ -67,23 +97,39 @@ export default function CategoryPage() {
   };
 
   const handleDelete = async () => {
-    await axios.delete(`${API_URL}/${deleteId}`);
-    setDeleteId(null);
-    fetchCategories();
+    try {
+      await axios.delete(`${API_URL}/${deleteId}`);
+      setDeleteId(null);
+
+      if (categories.length === 1 && currentPage > 1) {
+        setCurrentPage(currentPage - 1);
+      } else {
+        fetchCategories(currentPage);
+      }
+    } catch (error) {
+      console.error("Error deleting category:", error);
+      alert("Có lỗi xảy ra khi xóa danh mục!");
+    }
   };
 
   return (
-    <Box sx={{ maxWidth: 1600, margin: "40px auto" }}>
-      <Typography variant="h4" mb={3}>
-         Quản lý danh mmục (Categories)
-      </Typography>
+    <PageLayout
+      title="Quản lý danh mục"
+      extra={
+        <Button variant="contained" sx={{ mb: 2 }} onClick={handleCreate}>
+          Thêm danh mục
+        </Button>
+      }
+    >
+      <Box sx={{ mb: 2 }}>
+        <Typography variant="body2" color="text.secondary">
+          Hiển thị{" "}
+          {categories.length > 0 ? (currentPage - 1) * itemsPerPage + 1 : 0} -{" "}
+          {Math.min(currentPage * itemsPerPage, totalCategories)} của{" "}
+          {totalCategories} danh mục
+        </Typography>
+      </Box>
 
-      {/* BUTTON THÊM */}
-      <Button variant="contained" sx={{ mb: 2 }} onClick={handleCreate}>
-         Thêm danh mục
-      </Button>
-
-      {/* TABLE */}
       <TableContainer component={Paper} sx={{ minWidth: "900px" }}>
         <Table>
           <TableHead sx={{ background: "#f3f3f3" }}>
@@ -96,30 +142,56 @@ export default function CategoryPage() {
           </TableHead>
 
           <TableBody>
-            {categories.map((cat) => (
-              <TableRow key={cat.category_id}>
-                <TableCell>{cat.category_id}</TableCell>
-                <TableCell>{cat.name}</TableCell>
-                <TableCell>{cat.description}</TableCell>
-                <TableCell>
-                  <IconButton color="primary" onClick={() => handleEdit(cat)}>
-                    <EditIcon />
-                  </IconButton>
-
-                  <IconButton
-                    color="error"
-                    onClick={() => setDeleteId(cat.category_id)}
+            {categories.length === 0 ? (
+              <TableRow>
+                <TableCell colSpan={4} align="center">
+                  <Typography
+                    variant="body2"
+                    color="text.secondary"
+                    sx={{ py: 3 }}
                   >
-                    <DeleteIcon />
-                  </IconButton>
+                    Không có danh mục nào
+                  </Typography>
                 </TableCell>
               </TableRow>
-            ))}
+            ) : (
+              categories.map((cat) => (
+                <TableRow key={cat.category_id}>
+                  <TableCell>{cat.category_id}</TableCell>
+                  <TableCell>{cat.name}</TableCell>
+                  <TableCell>{cat.description}</TableCell>
+                  <TableCell>
+                    <IconButton color="primary" onClick={() => handleEdit(cat)}>
+                      <EditIcon />
+                    </IconButton>
+                    <IconButton
+                      color="error"
+                      onClick={() => setDeleteId(cat.category_id)}
+                    >
+                      <DeleteIcon />
+                    </IconButton>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
           </TableBody>
         </Table>
       </TableContainer>
 
-      {/* MODAL - FORM */}
+      {totalPages > 1 && (
+        <Stack spacing={2} sx={{ mt: 3, alignItems: "center" }}>
+          <Pagination
+            count={totalPages}
+            page={currentPage}
+            onChange={handlePageChange}
+            color="primary"
+            size="large"
+            showFirstButton
+            showLastButton
+          />
+        </Stack>
+      )}
+
       <CategoryFormModal
         open={openFormModal}
         form={form}
@@ -129,12 +201,11 @@ export default function CategoryPage() {
         editingId={editingId}
       />
 
-      {/* MODAL - DELETE */}
       <DeleteModal
         open={Boolean(deleteId)}
         onClose={() => setDeleteId(null)}
         onConfirm={handleDelete}
       />
-    </Box>
+    </PageLayout>
   );
 }

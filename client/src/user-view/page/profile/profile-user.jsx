@@ -3,6 +3,7 @@ import { jwtDecode } from "jwt-decode";
 import { useEffect, useState } from "react";
 import "./profile.css";
 import { Box, Button, Divider, TextField, Typography } from "@mui/material";
+import UserAccountLayout from "../../../admin-page/component/UserAccountLayout";
 
 export default function UserProfile() {
   const [user, setUser] = useState(null);
@@ -102,11 +103,7 @@ export default function UserProfile() {
   if (loading) return <p>Đang tải...</p>;
 
   return (
-    <Box sx={{ maxWidth: 1200, margin: "40px auto", padding: "20px" }}>
-      <Typography variant="h4" sx={{ mb: 3 }}>
-        Thông tin người dùng
-      </Typography>
-
+    <UserAccountLayout title="Thông tin người dùng">
       {/* ======= CHẾ ĐỘ XEM HOẶC CHỈNH SỬA ======= */}
       {!isEditing ? (
         // ================= VIEW MODE =================
@@ -264,6 +261,6 @@ export default function UserProfile() {
           </form>
         </>
       )}
-    </Box>
+    </UserAccountLayout>
   );
 }

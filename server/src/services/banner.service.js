@@ -1,15 +1,6 @@
 import pool from "../config/db.js";
 const URL = `http://localhost:` + process.env.PORT + ``;
 
-export const getAllBanners = async () => {
-    const [rows] = await pool.query("SELECT * FROM banners ORDER BY banner_id DESC");
-    const output = rows.map((item) => ({
-        ...item,
-        image: item.image ? URL + item.image : null,
-    }));
-    return output;
-};
-
 export const getAllBannersPublic = async () => {
     const [rows] = await pool.query(
         "SELECT * FROM banners WHERE status = 'active' ORDER BY banner_id DESC"
@@ -70,4 +61,38 @@ export const updateBanner = async (id, data) => {
 export const deleteBanner = async (id) => {
     await pool.query("DELETE FROM banners WHERE banner_id = ?", [id]);
     return { message: "Banner deleted successfully" };
+};
+
+// Cập nhật service
+export const getAllBanners = async (options = {}) => {
+    const { page = 1, limit = 10 } = options;
+
+    // Count total banners
+    const [countResult] = await pool.query("SELECT COUNT(*) as total FROM banners");
+    const totalBanners = countResult[0].total;
+    const totalPages = Math.ceil(totalBanners / limit);
+
+    // Get paginated banners
+    const offset = (page - 1) * limit;
+    const [rows] = await pool.query(
+        "SELECT * FROM banners ORDER BY banner_id DESC LIMIT ? OFFSET ?",
+        [limit, offset]
+    );
+
+    const banners = rows.map((item) => ({
+        ...item,
+        image: item.image ? URL + item.image : null,
+    }));
+
+    return {
+        banners,
+        pagination: {
+            currentPage: page,
+            totalPages: totalPages,
+            totalBanners: totalBanners,
+            itemsPerPage: limit,
+            hasNextPage: page < totalPages,
+            hasPrevPage: page > 1,
+        },
+    };
 };

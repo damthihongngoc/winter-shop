@@ -4,8 +4,12 @@ import { CategoryService } from "../services/category.service.js";
 const CategoryController = {
     async getAll(req, res) {
         try {
-            const categories = await CategoryService.getAll();
-            res.json(categories);
+            const { page = 1, limit = 10 } = req.query;
+            const result = await CategoryService.getAll({
+                page: parseInt(page),
+                limit: parseInt(limit),
+            });
+            res.json(result);
         } catch (err) {
             res.status(500).json({ error: err.message });
         }

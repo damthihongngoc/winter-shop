@@ -17,8 +17,6 @@ function Navbar() {
   const { cartQuantity } = useCart();
 
   const [isOpen, setIsOpen] = useState(false);
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [categories, setCategories] = useState([]);
   const [isLogin, setIsLogin] = useState(false);
   const [decode, setDecoded] = useState(false);
 
@@ -39,17 +37,8 @@ function Navbar() {
     } else {
       setIsLogin(false);
     }
-
-    const fetchCategories = async () => {
-      try {
-        const res = await axios.get("http://localhost:3001/api/categories");
-        setCategories(res.data);
-      } catch (err) {
-        console.error("Lỗi tải danh mục:", err);
-      }
-    };
-    fetchCategories();
   }, []);
+
   const onLogout = () => {
     localStorage.removeItem("token");
     window.location.href = "/";
@@ -66,28 +55,7 @@ function Navbar() {
         <Link to="/">Trang chủ</Link>
 
         {/* Dropdown Sản phẩm */}
-        <div
-          className="dropdown"
-          onMouseEnter={() => setShowDropdown(true)}
-          onMouseLeave={() => setShowDropdown(false)}
-        >
-          <Link to="/products" className="dropdown-link">
-            Sản phẩm ▾
-          </Link>
-
-          <div className={`dropdown-menu ${showDropdown ? "show" : ""}`}>
-            {categories.length > 0 ? (
-              categories.map((cat) => (
-                <Link key={cat.category_id} to={`/products/${cat.category_id}`}>
-                  {cat.name}
-                </Link>
-              ))
-            ) : (
-              <span className="loading-text">Đang tải...</span>
-            )}
-          </div>
-        </div>
-
+        <Link to="/products">Sản phẩm</Link>
         <Link to="/about">Giới thiệu</Link>
         <Link to="/contact">Liên hệ</Link>
         <Link to="/cart" className="cart-link">

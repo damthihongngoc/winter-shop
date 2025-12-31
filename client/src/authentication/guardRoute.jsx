@@ -9,7 +9,7 @@ const GuardRoute = ({ element: Element, ...rest }) => {
 
   useEffect(() => {
     const checkAdmin = async () => {
-      const accessToken = Cookies.get("accessToken");
+      const accessToken = localStorage.getItem("token");
       if (accessToken) {
         try {
           const isAdmin = await verifyAdmin(accessToken);

@@ -1,15 +1,19 @@
 import sizeService from "../services/size.service.js";
 
-export const getAllSizes = async(req, res) => {
+export const getAllSizes = async (req, res) => {
     try {
-        const sizes = await sizeService.getAllSizes();
-        res.json(sizes);
+        const { page = 1, limit = 10 } = req.query;
+        const result = await sizeService.getAllSizes({
+            page: parseInt(page),
+            limit: parseInt(limit),
+        });
+        res.json(result);
     } catch (error) {
         res.status(500).json({ message: error.message });
     }
 };
 
-export const getSizeById = async(req, res) => {
+export const getSizeById = async (req, res) => {
     try {
         const size = await sizeService.getSizeById(req.params.id);
         if (!size) return res.status(404).json({ message: "Size not found" });
@@ -19,7 +23,7 @@ export const getSizeById = async(req, res) => {
     }
 };
 
-export const createSize = async(req, res) => {
+export const createSize = async (req, res) => {
     try {
         const { name } = req.body;
         const newSize = await sizeService.createSize(name);
@@ -29,7 +33,7 @@ export const createSize = async(req, res) => {
     }
 };
 
-export const updateSize = async(req, res) => {
+export const updateSize = async (req, res) => {
     try {
         const { name } = req.body;
         const updated = await sizeService.updateSize(req.params.id, name);
@@ -39,7 +43,7 @@ export const updateSize = async(req, res) => {
     }
 };
 
-export const deleteSize = async(req, res) => {
+export const deleteSize = async (req, res) => {
     try {
         const result = await sizeService.deleteSize(req.params.id);
         res.json(result);
